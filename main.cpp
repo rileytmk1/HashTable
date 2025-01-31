@@ -11,11 +11,11 @@ struct Node{
 };
 
 
-void insert(Student* newstudent, Node** &ht, int hash);
+void insert(Student* newstudent, Node** &ht, int hash, int &size);
 void print(Node** &ht, int &size);
-int hashfunc(char* name, int &size);
+int hashfunc(int id, int &size);
 void DELETE(Node** &ht, int check_id, int &size);
-Node** rehash(Node** &ht, int& size);
+void rehash(Node** &ht, int& size);
 
 int main()
 {
@@ -61,7 +61,7 @@ int main()
       strcpy(student->getFirst(), fname);
       strcpy(student->getLast(), lname);
       
-      insert(student, ht, hashfunc(student->getFirst(), size)); 
+      insert(student, ht, hashfunc(student->getId(), size), size); 
  
     }
 
@@ -74,21 +74,28 @@ int main()
       cout << "ID: ";
       cin >> check_id;
       cin.ignore();
+
       DELETE(ht, check_id, size);
+    }
+
+    else if (strcmp(input, "RANDOM") == 0){
+      
     }
   }
 }
 
-int hashfunc(char* name, int& size)
+int hashfunc(int id, int& size)
 {
   int v = 0;
-  for (int i = 0; i < strlen(name); i++){
-    v += name[i];
+  while (id != 0){
+    int r = id % 10 + '0';
+    v += r;
+    id = id / 10;
   }
   return (v % size);
 }
 
-void insert(Student* newstudent, Node** &ht, int hash)
+void insert(Student* newstudent, Node** &ht, int hash, int &size)
 {
   Node* newNode = new Node();
   newNode->value = newstudent;
@@ -103,9 +110,14 @@ void insert(Student* newstudent, Node** &ht, int hash)
     while (current->next != NULL){
       current = current->next;
       count++;
+      if (count == 3) {
+	cout << "test" << endl;
+	rehash(ht, size);
+      }
     }
     current->next = newNode;
   }
+  cout << size << endl;
 }
 
 void print(Node** &ht, int &size){
@@ -121,33 +133,49 @@ void print(Node** &ht, int &size){
 
 void DELETE(Node** &ht, int check_id, int &size)
 {
-  for (int i = 0; i < size; i++){
-    Node* current = ht[i];
-    Node* prev = NULL;
-    while (current != NULL){
-      if (prev == NULL && current->value->getId() == check_id){
+  bool found = false;
+  int hash = hashfunc(check_id, size);
+  Node* current = ht[hash];
+  Node* prev = NULL;
+  while (current != NULL){
+    if (current->value->getId() == check_id){
+      if (prev == NULL){
 	Node* temp = current;
 	current = current->next;
-	ht[i] = current;
+	ht[hash] = current;
 	delete temp;
       }
-      else if (current->value->getId() == check_id){
+      else{
 	Node* temp2 = current;
 	prev->next = current->next;
 	delete temp2;
       }
-      else{
-	prev = current;
-	current = current->next;
-      }
+      found = true;
     }
       
+    else{
+      prev = current;
+      current = current->next;
+    }
+      
+ }
+  if (found == false){
+    cout << "No Student found." << endl;
   }
 }
 
 void rehash (Node** &ht, int& size)
 {
-  
+  size = size * 2;
+  Node** newTable = new Node*[size];
+  for (int i = 0; i < size / 2; i++){
+    Node* current = ht[i];
+    while (current != NULL){
+      insert(current->value, newTable, hashfunc(current->value->getId(), size), size);
+      current = current->next;
+    }
+  }
+  ht = newTable;
 }
 
 
