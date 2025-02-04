@@ -2,6 +2,8 @@
 #include <cstring>
 #include "Student.h"
 #include <iomanip>
+#include <vector>
+#include <fstream>
 
 using namespace std;
 
@@ -16,6 +18,8 @@ void print(Node** &ht, int &size);
 int hashfunc(int id, int &size);
 void DELETE(Node** &ht, int check_id, int &size);
 void rehash(Node** &ht, int& size);
+Student* random(Node** &ht, vector<string> fnames, vector<string> lnames);
+
 
 int main()
 {
@@ -179,7 +183,10 @@ void rehash (Node** &ht, int& size)
 }
 
 
-
+Student* random(Node** &ht, vector<string> fnames, vector<string> lnames)
+{
+  
+}
 
 
 
