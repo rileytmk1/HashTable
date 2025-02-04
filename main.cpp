@@ -3,7 +3,9 @@
 #include "Student.h"
 #include <iomanip>
 #include <vector>
+#include <string>
 #include <fstream>
+#include <cmath>
 
 using namespace std;
 
@@ -18,7 +20,7 @@ void print(Node** &ht, int &size);
 int hashfunc(int id, int &size);
 void DELETE(Node** &ht, int check_id, int &size);
 void rehash(Node** &ht, int& size);
-Student* random(Node** &ht, vector<string> fnames, vector<string> lnames);
+void random(Node** &ht, int &size, vector<string> fnames, vector<string> lnames, int n);
 
 
 int main()
@@ -83,7 +85,25 @@ int main()
     }
 
     else if (strcmp(input, "RANDOM") == 0){
+      vector<string> fnames;
+      vector<string> lnames;
       
+      ifstream f("firstnames.txt");
+      string s;
+      while(getline(f, s)){
+	fnames.push_back(s);
+      }
+
+      ifstream f2("lastnames.txt");
+      string s2;
+      while(getline(f2,s2)){
+	lnames.push_back(s2);
+      }
+      int n;
+      cout << "How many students? ";
+      cin >> n;
+      cin.ignore();
+      random(ht, size, fnames, lnames, n);
     }
   }
 }
@@ -117,6 +137,8 @@ void insert(Student* newstudent, Node** &ht, int hash, int &size)
       if (count == 3) {
 	cout << "test" << endl;
 	rehash(ht, size);
+	hash = hashfunc(newstudent->getId(), size);
+
       }
     }
     current->next = newNode;
@@ -172,6 +194,10 @@ void rehash (Node** &ht, int& size)
 {
   size = size * 2;
   Node** newTable = new Node*[size];
+  for (int i = 0; i < size; i++){
+    newTable[i] == NULL;
+  }
+  
   for (int i = 0; i < size / 2; i++){
     Node* current = ht[i];
     while (current != NULL){
@@ -183,10 +209,32 @@ void rehash (Node** &ht, int& size)
 }
 
 
-Student* random(Node** &ht, vector<string> fnames, vector<string> lnames)
+void random(Node** &ht, int& size, vector<string> fnames, vector<string> lnames, int n)
 {
+  srand(time(0));
+  int id = 400000;
+  int c = 0;
+  
+  while (c != n){
+    int random = rand() % fnames.size();
+    double decimal = static_cast<double>(rand()) / RAND_MAX;
+    double gpa = 4 * decimal;
+    gpa = round(gpa * 100) / 100;
+    Student* nstudent = new Student();
+    nstudent->getId() = id;
+    nstudent->getGPA() = gpa;
+    strcpy(nstudent->getFirst(), fnames[random].c_str());
+    strcpy(nstudent->getLast(), lnames[random].c_str());
+    insert(nstudent, ht, hashfunc(nstudent->getId(), size), size);
+    id++;
+    c++;
+    //fnames.erase(random);
+    //lnames.erase(random);
+  }
+
   
 }
+
 
 
 
