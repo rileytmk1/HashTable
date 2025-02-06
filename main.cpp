@@ -20,15 +20,16 @@ void print(Node** &ht, int &size);
 int hashfunc(int id, int &size);
 void DELETE(Node** &ht, int check_id, int &size);
 void rehash(Node** &ht, int& size);
-void random(Node** &ht, int &size, vector<string> fnames, vector<string> lnames, int n);
+void random(Node** &ht, int &size, vector<string> fnames, vector<string> lnames, int n, int &id);
 
 
 int main()
 {
   Node** ht;
   int size = 101;
+  int id = 400000;
   ht = new Node*[size];
-  for (int i = 9; i < 101; i++){
+  for (int i = 0; i < 101; i++){
     ht[i] = NULL;
   }
   
@@ -103,7 +104,7 @@ int main()
       cout << "How many students? ";
       cin >> n;
       cin.ignore();
-      random(ht, size, fnames, lnames, n);
+      random(ht, size, fnames, lnames, n, id);
     }
   }
 }
@@ -112,11 +113,12 @@ int hashfunc(int id, int& size)
 {
   int v = 0;
   while (id != 0){
-    int r = id % 10 + '0';
-    v += r;
+    int r = id % 10;
+    v = (v* 31 + r) % size;
     id = id / 10;
   }
-  return (v % size);
+  v = (v + (size*3)) % size;
+  return v;
 }
 
 void insert(Student* newstudent, Node** &ht, int hash, int &size)
@@ -138,6 +140,7 @@ void insert(Student* newstudent, Node** &ht, int hash, int &size)
 	cout << "test" << endl;
 	rehash(ht, size);
 	hash = hashfunc(newstudent->getId(), size);
+	insert(newstudent, ht, hash, size);
 
       }
     }
@@ -205,14 +208,14 @@ void rehash (Node** &ht, int& size)
       current = current->next;
     }
   }
+  delete[] ht;
   ht = newTable;
 }
 
 
-void random(Node** &ht, int& size, vector<string> fnames, vector<string> lnames, int n)
+void random(Node** &ht, int& size, vector<string> fnames, vector<string> lnames, int n, int &id)
 {
   srand(time(0));
-  int id = 400000;
   int c = 0;
   
   while (c != n){
@@ -228,8 +231,8 @@ void random(Node** &ht, int& size, vector<string> fnames, vector<string> lnames,
     insert(nstudent, ht, hashfunc(nstudent->getId(), size), size);
     id++;
     c++;
-    //fnames.erase(random);
-    //lnames.erase(random);
+    fnames.erase(fnames.begin() + random);
+    lnames.erase(lnames.begin() + random);
   }
 
   
