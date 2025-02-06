@@ -255,6 +255,7 @@ void random(Node** &ht, int& size, vector<string> fnames, vector<string> lnames,
     
     id++; // increment id
     c++; // keep track of students added
+    //remove names added to avoid repeats
     fnames.erase(fnames.begin() + random);
     lnames.erase(lnames.begin() + random);
   }
